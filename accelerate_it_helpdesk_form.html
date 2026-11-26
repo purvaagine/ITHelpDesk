@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Helpdesk</title>
+<style>
+  :root { --blue:#2684ff; --ink:#172b4d; --muted:#5e6c84; --line:#8993a4; --pale:#f4f5f7; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font:14px Arial,Helvetica,sans-serif; }
+  .top-strip { height:14px; background:#e6f4fb; }
+  main { width:min(760px, calc(100% - 40px)); margin:22px auto 34px; }
+  .crumb { color:#2684ff; font-size:11px; margin-bottom:12px; }
+  .crumb span { color:#6b778c; margin:0 8px; }
+  .brand { display:flex; align-items:center; gap:13px; margin-bottom:12px; }
+  .logo { width:36px; height:36px; position:relative; flex:none; }
+  .logo:before { content:""; position:absolute; left:4px; top:2px; width:15px; height:29px; background:#1684d8; clip-path:polygon(50% 0,100% 100%,0 100%); transform:rotate(12deg); }
+  .logo:after { content:""; position:absolute; right:2px; top:12px; width:17px; height:19px; background:#d72638; clip-path:polygon(0 0,100% 50%,0 100%); }
+  h1 { font-size:20px; font-weight:600; margin:0; }
+  .welcome { font-size:12px; margin:0 0 30px; }
+  .section-label { display:block; color:var(--muted); font-size:11px; margin-bottom:5px; }
+  .request-type { background:#f4f5f7; border-radius:5px; height:76px; display:flex; align-items:center; padding:0 19px; gap:14px; margin-bottom:18px; }
+  .request-icon { width:36px; height:36px; border-radius:9px; background:#e5e7eb; display:grid; place-items:center; color:#42526e; font-size:20px; }
+  .request-type strong { color:#2684ff; font-size:13px; font-weight:500; }
+  .chevron { margin-left:auto; color:#42526e; }
+  .required-note { font-size:12px; margin:0 0 20px; }
+  .email-entry { max-width:520px; margin-top:28px; }
+  .email-entry input { margin-bottom:14px; }
+  .email-error { color:#de350b; font-size:12px; margin:0 0 10px; }
+  .choice-card { width:100%; display:flex; align-items:center; gap:12px; min-height:66px; padding:12px 18px; margin:0 0 10px; background:#fff; color:var(--ink); text-align:left; border:0; border-radius:5px; cursor:pointer; }
+  .choice-card:hover { background:#f7f8fa; }
+  .choice-icon { width:36px; height:36px; border-radius:9px; background:#f0f1f3; display:grid; place-items:center; color:#42526e; font-size:20px; flex:none; }
+  .choice-card strong { display:block; color:#2684ff; font-size:13px; font-weight:500; margin-bottom:5px; }
+  .choice-card small { display:block; color:var(--ink); font-size:12px; font-weight:400; }
+  .back-link { background:transparent; color:#42526e; padding:8px 0; margin-top:8px; }
+  .hidden { display:none !important; }
+  .required-note b, .req { color:#de350b; }
+  form { display:flex; flex-direction:column; gap:15px; }
+  .field label { display:block; font-size:11px; font-weight:600; margin-bottom:5px; }
+  input, select, textarea { width:100%; min-height:36px; border:1px solid var(--line); border-radius:5px; background:#fff; color:var(--ink); padding:8px 10px; font:13px Arial, sans-serif; outline:none; }
+  input:focus, select:focus, textarea:focus { border:2px solid var(--blue); padding:7px 9px; }
+  select:disabled { background:#f4f5f7; color:#8993a4; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .hidden { display:none !important; }
+  .upload { min-height:72px; border:1px dashed #dfe1e6; border-radius:4px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; color:#2684ff; font-size:12px; padding:12px; text-align:center; }
+  .upload.drag { background:#f0f7ff; border-color:var(--blue); }
+  .upload input { display:none; }
+  .browse { border:1px solid #dfe1e6; color:var(--ink); background:#fff; border-radius:4px; padding:5px 12px; cursor:pointer; font-size:12px; }
+  .file-list { color:var(--muted); font-size:11px; margin-top:6px; }
+  .actions { display:flex; align-items:center; gap:12px; margin-top:0; }
+  button { cursor:pointer; border:0; border-radius:4px; font-size:12px; padding:8px 13px; }
+  .submit { background:#2684ff; color:white; }
+  .cancel { background:transparent; color:#42526e; padding-left:0; }
+  .status { font-size:12px; margin-top:4px; color:#00875a; }
+  footer { text-align:center; color:#6b778c; font-size:10px; margin:48px 0 0; }
+  @media(max-width:560px) { main { width:calc(100% - 28px); margin-top:18px; } .two-col { grid-template-columns:1fr; } h1 { font-size:18px; } }
+</style>
+</head>
+<body>
+<div class="top-strip"></div>
+<main>
+  <section id="emailPage" class="entry-page">
+    <div class="crumb">IT Help Center <span>/</span>IT Helpdesk</div>
+    <div class="brand"><div class="logo" aria-hidden="true"></div><h1>IT Helpdesk Internal</h1></div>
+    <p class="welcome">Enter your work email address to continue.</p>
+    <div class="field email-entry">
+      <label for="requesterEmail">Email ID<span class="req">*</span></label>
+      <input id="requesterEmail" type="email" placeholder="name@company.com" autocomplete="email" required>
+      <p class="email-error" id="emailError" role="alert"></p>
+      <button class="submit" type="button" id="continueButton">Continue</button>
+    </div>
+  </section>
+
+  <section id="choicePage" class="hidden">
+    <div class="crumb">Help Center <span>/</span> IT Helpdesk Internal</div>
+    <div class="brand"><div class="logo" aria-hidden="true"></div><h1>IT Helpdesk Internal</h1></div>
+    <p class="welcome">Welcome! You can raise a request for IT Helpdesk using the options provided.</p>
+    <label class="section-label">What can we help you with?</label>
+    <button class="choice-card" type="button" id="serviceRequestChoice">
+      <span class="choice-icon">⊞</span><span><strong>Service Request</strong></span>
+    </button>
+    <button class="choice-card email-choice" type="button" id="emailRequestChoice">
+      <span class="choice-icon">✉</span><span><strong>Emailed request</strong><small>Request received from your email support channel.</small></span>
+    </button>
+    <button class="back-link" type="button" id="backToEmail">Back</button>
+  </section>
+
+  <section id="formPage" class="hidden">
+  <div class="crumb">Help Center <span>/</span>IT Helpdesk Internal</div> Help Center <span>/</span> Accelerate IT Helpdesk Internal</div>
+  <div class="brand"><div class="logo" aria-hidden="true"></div><h1>Accelerate IT Helpdesk Internal</h1></div>
+  <p class="welcome">Welcome! You can raise a request for IT Helpdesk using the options provided.</p>
+
+  <label class="section-label">What can we help you with?</label>
+  <div class="request-type"><div class="request-icon">⊞</div><strong>Service Request</strong><span class="chevron">⌄</span></div>
+  <p class="required-note">Required fields are marked with an asterisk<span class="req">*</span></p>
+
+  <form id="helpdeskForm">
+    <input type="hidden" id="requesterEmailHidden" name="requesterEmail">
+    <div class="field">
+      <label for="summary">Summary<span class="req">*</span></label>
+      <input id="summary" name="summary" required>
+    </div>
+
+    <div class="two-col">
+      <div class="field">
+        <label for="category">Resolution Category Service Request (AISD)<span class="req">*</span></label>
+        <select id="category" name="category" required>
+          <option value="">Select a category</option>
+          <option>Access Request</option>
+          <option>Ask a Question</option>
+          <option>Asset Request</option>
+          <option>Employee Offboarding</option>
+          <option>Employee Onboarding</option>
+          <option>Other</option>
+          <option>Report a System Problem</option>
+          <option>Software Request</option>
+        </select>
+      </div>
+      <div class="field" id="subcategoryField">
+        <label for="subcategory">Subcategory<span class="req">*</span></label>
+        <select id="subcategory" name="subcategory" required disabled>
+          <option value="">Select a subcategory</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field hidden" id="detailsField">
+      <label for="details" id="detailsLabel">Please provide details<span class="req">*</span></label>
+      <input id="details" name="details" placeholder="Enter details">
+    </div>
+
+    <div class="two-col">
+      <div class="field">
+        <label for="country">Country<span class="req">*</span></label>
+        <select id="country" name="country" required>
+          <option value="">Select country</option><option>India</option><option>US</option><option>Columbia</option><option>Pakistan</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="location">Location<span class="req">*</span></label>
+        <select id="location" name="location" required>
+          <option value="">Select location</option><option>Onsite</option><option>Hybrid</option><option>Remote</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="field">
+        <label for="department">Department<span class="req">*</span></label>
+        <select id="department" name="department" required>
+          <option value="">Select department</option><option>ROC</option><option>SD</option><option>Mulesoft</option><option>Finance</option><option>HR</option><option>Salesforce</option><option>TAC</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="priority">Priority<span class="req">*</span></label>
+        <select id="priority" name="priority" required>
+          <option value="">Select priority</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option><option>Very Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Attachment</label>
+      <div class="upload" id="dropZone">
+        <div>Drag and drop files, paste screenshots, or browse</div>
+        <button class="browse" type="button" id="browseButton">Browse</button>
+        <input id="attachment" type="file" multiple>
+      </div>
+      <div class="file-list" id="fileList"></div>
+    </div>
+
+    <div class="actions">
+      <button class="submit" type="submit">Submit</button>
+      <button class="cancel" type="reset" id="cancelButton">Cancel</button>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </form>
+  <footer>IT Helpdesk</footer>
+  </section>
+</main>
+<script>
+let currentRequesterEmail = '';
+const emailPage = document.getElementById('emailPage');
+const choicePage = document.getElementById('choicePage');
+const formPage = document.getElementById('formPage');
+const requesterEmail = document.getElementById('requesterEmail');
+
+document.getElementById('continueButton').addEventListener('click', () => {
+  const email = requesterEmail.value.trim();
+  if (!requesterEmail.checkValidity() || !email) {
+    document.getElementById('emailError').textContent = 'Enter a valid email address to continue.';
+    requesterEmail.focus();
+    return;
+  }
+  currentRequesterEmail = email;
+  document.getElementById('requesterEmailHidden').value = email;
+  document.getElementById('emailError').textContent = '';
+  emailPage.classList.add('hidden');
+  choicePage.classList.remove('hidden');
+});
+requesterEmail.addEventListener('keydown', event => {
+  if (event.key === 'Enter') document.getElementById('continueButton').click();
+});
+document.getElementById('backToEmail').addEventListener('click', () => {
+  choicePage.classList.add('hidden');
+  emailPage.classList.remove('hidden');
+});
+document.getElementById('serviceRequestChoice').addEventListener('click', () => {
+  choicePage.classList.add('hidden');
+  formPage.classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+document.getElementById('emailRequestChoice').addEventListener('click', () => {
+  // This option represents requests arriving through the support email channel.
+  // No separate email-channel workflow was specified for this prototype.
+  alert('Emailed requests are received through your email support channel.');
+});
+
+const category = document.getElementById('category');
+const subcategory = document.getElementById('subcategory');
+const subcategoryField = document.getElementById('subcategoryField');
+const detailsField = document.getElementById('detailsField');
+const details = document.getElementById('details');
+const detailsLabel = document.getElementById('detailsLabel');
+
+const options = {
+  'Access Request': ['Create/Add Email Distribution List', 'Sharepoint Access', 'JIRA Portal Access'],
+  'Asset Request': ['Headphone', 'Monitor', 'Mouse'],
+  'Employee Offboarding': ['Access Removal', 'Asset Collection'],
+  'Employee Onboarding': ['Email Setup', 'Asset Setup'],
+  'Report a System Problem': ['Laptop Repair - Internal', 'Laptop Repair- External', 'Laptop Replacement', 'Software Fix', 'System Upgrade'],
+  'Software Request': ['Opensource', 'Licensed']
+};
+
+category.addEventListener('change', () => {
+  const selected = category.value;
+  subcategory.innerHTML = '<option value="">Select a subcategory</option>';
+  subcategory.value = '';
+  details.value = '';
+  detailsField.classList.add('hidden');
+  details.required = false;
+
+  if (selected === 'Ask a Question' || selected === 'Other') {
+    subcategoryField.classList.add('hidden');
+    subcategory.required = false;
+    subcategory.disabled = true;
+    detailsField.classList.remove('hidden');
+    detailsLabel.innerHTML = (selected === 'Ask a Question' ? 'Your question' : 'Please specify') + '<span class="req">*</span>';
+    details.placeholder = selected === 'Ask a Question' ? 'Type your question' : 'Enter details';
+    details.required = true;
+  } else if (options[selected]) {
+    subcategoryField.classList.remove('hidden');
+    subcategory.required = true;
+    subcategory.disabled = false;
+    options[selected].forEach(item => {
+      const option = document.createElement('option');
+      option.value = item;
+      option.textContent = item;
+      subcategory.appendChild(option);
+    });
+  } else {
+    subcategoryField.classList.remove('hidden');
+    subcategory.required = true;
+    subcategory.disabled = true;
+  }
+});
+
+const fileInput = document.getElementById('attachment');
+const dropZone = document.getElementById('dropZone');
+const fileList = document.getElementById('fileList');
+let selectedFiles = [];
+function addFiles(files) {
+  for (const file of files) {
+    if (!selectedFiles.some(existing => existing.name === file.name && existing.size === file.size)) selectedFiles.push(file);
+  }
+  fileList.textContent = selectedFiles.map(file => file.name).join(' · ');
+}
+document.getElementById('browseButton').addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', event => addFiles(event.target.files));
+['dragenter','dragover'].forEach(name => dropZone.addEventListener(name, event => { event.preventDefault(); dropZone.classList.add('drag'); }));
+['dragleave','drop'].forEach(name => dropZone.addEventListener(name, event => { event.preventDefault(); dropZone.classList.remove('drag'); }));
+dropZone.addEventListener('drop', event => addFiles(event.dataTransfer.files));
+document.addEventListener('paste', event => {
+  const files = [...(event.clipboardData?.items || [])].filter(item => item.kind === 'file').map(item => item.getAsFile()).filter(Boolean);
+  if (files.length) addFiles(files);
+});
+
+document.getElementById('helpdeskForm').addEventListener('submit', event => {
+  event.preventDefault();
+  if (!event.target.reportValidity()) return;
+  document.getElementById('status').textContent = 'Form validated. Connect this page to your ticketing backend to submit the request.';
+});
+document.getElementById('helpdeskForm').addEventListener('reset', () => {
+  setTimeout(() => {
+    subcategory.innerHTML = '<option value="">Select a subcategory</option>';
+    subcategory.disabled = true;
+    subcategory.required = true;
+    subcategoryField.classList.remove('hidden');
+    detailsField.classList.add('hidden');
+    selectedFiles = [];
+    fileList.textContent = '';
+    document.getElementById('status').textContent = '';
+  }, 0);
+});
+</script>
+</body>
+</html>
