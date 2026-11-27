@@ -290,7 +290,7 @@ document.addEventListener('paste', event => {
 function nextTicketId() {
   // Demo ticket ID: a random 4-digit number (1000-9999).
   // Replace with the ID returned by your real ticketing backend.
-  return String(Math.floor(1000 + Math.random() * 9000));
+  return 'AISD-' + String(Math.floor(1000 + Math.random() * 9000));
 }
 
 document.getElementById('helpdeskForm').addEventListener('submit', event => {
