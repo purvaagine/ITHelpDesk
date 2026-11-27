@@ -52,6 +52,14 @@
   .submit { background:#2684ff; color:white; }
   .cancel { background:transparent; color:#42526e; padding-left:0; }
   .status { font-size:12px; margin-top:4px; color:#00875a; }
+  .confirmation { border:1px solid #abf5d1; background:#e3fcef; border-radius:5px; padding:22px 24px; }
+  .confirmation h2 { margin:0 0 6px; font-size:18px; font-weight:600; color:#006644; }
+  .confirmation p { margin:0 0 14px; font-size:13px; }
+  .ticket-id-box { display:inline-block; background:#fff; border:1px solid #abf5d1; border-radius:5px; padding:10px 18px; margin-bottom:18px; font-size:12px; color:var(--muted); }
+  .ticket-id-box strong { display:block; margin-top:4px; font-size:22px; letter-spacing:.5px; color:var(--ink); }
+  .ticket-summary { width:100%; border-collapse:collapse; background:#fff; margin-bottom:18px; font-size:12px; }
+  .ticket-summary th, .ticket-summary td { text-align:left; padding:7px 10px; border:1px solid #dfe1e6; vertical-align:top; }
+  .ticket-summary th { width:34%; background:#f4f5f7; font-weight:600; }
   footer { text-align:center; color:#6b778c; font-size:10px; margin:48px 0 0; }
   @media(max-width:560px) { main { width:calc(100% - 28px); margin-top:18px; } .two-col { grid-template-columns:1fr; } h1 { font-size:18px; } }
 </style>
@@ -86,15 +94,15 @@
   </section>
 
   <section id="formPage" class="hidden">
-  <div class="crumb">Help Center <span>/</span>IT Helpdesk Internal</div> Help Center <span>/</span> Accelerate IT Helpdesk Internal</div>
-  <div class="brand"><div class="logo" aria-hidden="true"></div><h1>Accelerate IT Helpdesk Internal</h1></div>
+  <div class="crumb">Help Center <span>/</span> IT Helpdesk Internal</div>
+  <div class="brand"><div class="logo" aria-hidden="true"></div><h1>IT Helpdesk Internal</h1></div>
   <p class="welcome">Welcome! You can raise a request for IT Helpdesk using the options provided.</p>
 
   <label class="section-label">What can we help you with?</label>
   <div class="request-type"><div class="request-icon">⊞</div><strong>Service Request</strong><span class="chevron">⌄</span></div>
-  <p class="required-note">Required fields are marked with an asterisk<span class="req">*</span></p>
+  <p class="required-note" id="requiredNote">Required fields are marked with an asterisk<span class="req">*</span></p>
 
-  <form id="helpdeskForm">
+  <form id="helpdeskForm" novalidate>
     <input type="hidden" id="requesterEmailHidden" name="requesterEmail">
     <div class="field">
       <label for="summary">Summary<span class="req">*</span></label>
@@ -103,7 +111,7 @@
 
     <div class="two-col">
       <div class="field">
-        <label for="category">Resolution Category Service Request (AISD)<span class="req">*</span></label>
+        <label for="category">Resolution Category Service Request<span class="req">*</span></label>
         <select id="category" name="category" required>
           <option value="">Select a category</option>
           <option>Access Request</option>
@@ -175,6 +183,14 @@
     </div>
     <div class="status" id="status" role="status" aria-live="polite"></div>
   </form>
+
+  <div class="confirmation hidden" id="confirmation" role="status" aria-live="polite">
+    <h2>Your request has been submitted</h2>
+    <p>The IT Helpdesk team will review it shortly. Please keep your ticket ID for tracking.</p>
+    <div class="ticket-id-box">Ticket ID<strong id="ticketId" data-testid="ticket-id"></strong></div>
+    <table class="ticket-summary" id="ticketSummary"></table>
+    <button class="submit" type="button" id="newRequestButton">Raise another request</button>
+  </div>
   <footer>IT Helpdesk</footer>
   </section>
 </main>
@@ -285,10 +301,67 @@ document.addEventListener('paste', event => {
   if (files.length) addFiles(files);
 });
 
+function nextTicketId() {
+  // Demo ticket ID: a random 4-digit number (1000-9999).
+  // Replace with the ID returned by your real ticketing backend.
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
 document.getElementById('helpdeskForm').addEventListener('submit', event => {
   event.preventDefault();
-  if (!event.target.reportValidity()) return;
-  document.getElementById('status').textContent = 'Form validated. Connect this page to your ticketing backend to submit the request.';
+  const statusEl = document.getElementById('status');
+  if (!event.target.reportValidity()) {
+    statusEl.style.color = '#de350b';
+    statusEl.textContent = 'Please fill in all required fields (marked with *) before submitting.';
+    return;
+  }
+  statusEl.textContent = '';
+
+  const form = event.target;
+  const ticketId = nextTicketId();
+  const created = new Date();
+  const pad = v => String(v).padStart(2, '0');
+  const createdOn = created.getFullYear() + '-' + pad(created.getMonth() + 1) + '-' + pad(created.getDate()) +
+                    ' ' + pad(created.getHours()) + ':' + pad(created.getMinutes());
+
+  const rows = [
+    ['Requester', currentRequesterEmail],
+    ['Summary', form.summary.value],
+    ['Category', form.category.value],
+    [subcategory.disabled || !subcategory.value ? 'Details' : 'Subcategory',
+     subcategory.disabled || !subcategory.value ? details.value : subcategory.value],
+    ['Country', form.country.value],
+    ['Location', form.location.value],
+    ['Department', form.department.value],
+    ['Priority', form.priority.value],
+    ['Attachments', selectedFiles.length ? selectedFiles.map(f => f.name).join(', ') : 'None'],
+    ['Status', 'Open'],
+    ['Created On', createdOn]
+  ];
+  const table = document.getElementById('ticketSummary');
+  table.innerHTML = '';
+  rows.forEach(([label, value]) => {
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    const td = document.createElement('td');
+    th.textContent = label;
+    td.textContent = value;
+    tr.append(th, td);
+    table.appendChild(tr);
+  });
+
+  document.getElementById('ticketId').textContent = ticketId;
+  form.classList.add('hidden');
+  document.getElementById('requiredNote').classList.add('hidden');
+  document.getElementById('confirmation').classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+document.getElementById('newRequestButton').addEventListener('click', () => {
+  document.getElementById('confirmation').classList.add('hidden');
+  document.getElementById('helpdeskForm').classList.remove('hidden');
+  document.getElementById('requiredNote').classList.remove('hidden');
+  document.getElementById('helpdeskForm').reset();
 });
 document.getElementById('helpdeskForm').addEventListener('reset', () => {
   setTimeout(() => {
