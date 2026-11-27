@@ -32,7 +32,6 @@
   .choice-icon { width:36px; height:36px; border-radius:9px; background:#f0f1f3; display:grid; place-items:center; color:#42526e; font-size:20px; flex:none; }
   .choice-card strong { display:block; color:#2684ff; font-size:13px; font-weight:500; margin-bottom:5px; }
   .choice-card small { display:block; color:var(--ink); font-size:12px; font-weight:400; }
-  .back-link { background:transparent; color:#42526e; padding:8px 0; margin-top:8px; }
   .hidden { display:none !important; }
   .required-note b, .req { color:#de350b; }
   form { display:flex; flex-direction:column; gap:15px; }
@@ -41,7 +40,6 @@
   input:focus, select:focus, textarea:focus { border:2px solid var(--blue); padding:7px 9px; }
   select:disabled { background:#f4f5f7; color:#8993a4; }
   .two-col { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .hidden { display:none !important; }
   .upload { min-height:72px; border:1px dashed #dfe1e6; border-radius:4px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; color:#2684ff; font-size:12px; padding:12px; text-align:center; }
   .upload.drag { background:#f0f7ff; border-color:var(--blue); }
   .upload input { display:none; }
@@ -83,12 +81,11 @@
     <div class="crumb">Help Center <span>/</span> IT Helpdesk Internal</div>
     <div class="brand"><div class="logo" aria-hidden="true"></div><h1>IT Helpdesk Internal</h1></div>
     <p class="welcome">Welcome! You can raise a request for IT Helpdesk using the options provided.</p>
-    <label class="section-label">What can we help you with?</label><br><br>
+    <br><br>
+    <label class="section-label">What can we help you with?</label><br>
     <button class="choice-card" type="button" id="serviceRequestChoice">
-      <br><br><br><br><br>
       <span class="choice-icon">⊞</span><span><strong>Service Request</strong></span>
-    </button><br><br><br>
-    
+    </button>
   </section>
 
   <section id="formPage" class="hidden">
@@ -215,19 +212,10 @@ document.getElementById('continueButton').addEventListener('click', () => {
 requesterEmail.addEventListener('keydown', event => {
   if (event.key === 'Enter') document.getElementById('continueButton').click();
 });
-document.getElementById('backToEmail').addEventListener('click', () => {
-  choicePage.classList.add('hidden');
-  emailPage.classList.remove('hidden');
-});
 document.getElementById('serviceRequestChoice').addEventListener('click', () => {
   choicePage.classList.add('hidden');
   formPage.classList.remove('hidden');
   window.scrollTo({top:0, behavior:'smooth'});
-});
-document.getElementById('emailRequestChoice').addEventListener('click', () => {
-  // This option represents requests arriving through the support email channel.
-  // No separate email-channel workflow was specified for this prototype.
-  alert('Emailed requests are received through your email support channel.');
 });
 
 const category = document.getElementById('category');
